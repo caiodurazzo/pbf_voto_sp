@@ -1,17 +1,30 @@
+"""
+geocod.py - geocodificação de endereços com Nominatim (OpenStreetMap).
+
+Uso no notebook:
+    from utils.geocod import geocodificar_df
+    df_geo = geocodificar_df(df, coluna="end_local", email="seu_email@exemplo.com")
+
+Dependências: pandas, geopy (tqdm é opcional, só para a barra de progresso).
+"""
 from __future__ import annotations
+
 import json
 import re
 from pathlib import Path
+
 import pandas as pd
 from geopy.extra.rate_limiter import RateLimiter
 from geopy.geocoders import Nominatim
+from geopy.point import Point
 
 try:
     from tqdm.auto import tqdm as _tqdm
-except ImportError:  
+except ImportError:  # tqdm é opcional
     _tqdm = None
 
-BBOX_SP = (-24.01, -23.35, -46.83, -46.36)  
+# Caixa aproximada do município de São Paulo (detecta resultados fora do lugar)
+BBOX_SP = (-24.01, -23.35, -46.83, -46.36)  # lat_min, lat_max, lon_min, lon_max
 
 ABREVIACOES = {
     r"^AV\.?\s": "AVENIDA ",
@@ -24,20 +37,24 @@ ABREVIACOES = {
     r"^VL\.?\s": "VIELA ",
 }
 
+
 def limpar_endereco(endereco: str, cidade: str = "São Paulo, SP, Brasil") -> tuple[str, str]:
+    """Normaliza o endereço. Devolve (endereço completo, só a rua)."""
     e = " ".join(str(endereco).upper().split())
     for padrao, novo in ABREVIACOES.items():
         e = re.sub(padrao, novo, e)
     rua, _, num = e.partition(",")
     rua = rua.strip().title()
-    m = re.search(r"\d[\d\.]*", num) 
+    m = re.search(r"\d[\d\.]*", num)  # "1.005 A" -> "1005"; "S/N" -> sem número
     numero = m.group(0).replace(".", "") if m else ""
     completo = f"{rua}, {numero}" if numero else rua
     return f"{completo}, {cidade}", f"{rua}, {cidade}"
 
+
 def _dentro_da_caixa(lat: float, lon: float, bbox) -> bool:
     lat_min, lat_max, lon_min, lon_max = bbox
     return lat_min <= lat <= lat_max and lon_min <= lon <= lon_max
+
 
 def geocodificar_df(
     df: pd.DataFrame,
@@ -48,9 +65,38 @@ def geocodificar_df(
     bbox: tuple | None = BBOX_SP,
     pais: str = "br",
     limite: int | None = None,
+    refazer: tuple[str, ...] = (),
 ) -> pd.DataFrame:
+    """
+    Geocodifica os endereços únicos de `df[coluna]` e devolve uma cópia de `df`
+    com as colunas `lat`, `lon` e `status`.
+
+    status: ok | aproximado_rua | nao_encontrado | fora_da_caixa_revisar
+
+    - O cache em disco permite interromper e continuar depois.
+    - `limite` geocodifica só N endereços (útil para testar).
+    - Com `bbox`, a busca é RESTRITA a essa caixa (viewbox + bounded do Nominatim),
+      evitando achar a mesma rua em outra cidade.
+    - `refazer=("fora_da_caixa_revisar", "nao_encontrado")` descarta do cache
+      os endereços com esses status e tenta de novo.
+    - `bbox=None` desliga a checagem de caixa geográfica (use se não for São Paulo).
+    """
     cache_path = Path(cache_path)
     cache = json.loads(cache_path.read_text(encoding="utf-8")) if cache_path.exists() else {}
+
+    # timeout=10 é válido em tempo de execução; o type ignore cobre um quirk
+    # nos stubs de tipos do geopy, que declaram o parâmetro como "object".
+    if refazer:
+        cache = {k: v for k, v in cache.items() if v.get("status") not in refazer}
+
+    # Restringe a busca à caixa geográfica (se houver)
+    extra: dict = {}
+    if bbox:
+        lat_min, lat_max, lon_min, lon_max = bbox
+        extra = {
+            "viewbox": [Point(lat_max, lon_min), Point(lat_min, lon_max)],
+            "bounded": True,
+        }
 
     geolocator = Nominatim(
         user_agent=f"geocod_utils ({email})",
@@ -74,9 +120,9 @@ def geocodificar_df(
         iterador = _tqdm(pendentes) if _tqdm else pendentes
         for i, end in enumerate(iterador, 1):
             completo, so_rua = limpar_endereco(end, cidade)
-            loc, status = geocode(completo, country_codes=pais), "ok"
-            if loc is None: 
-                loc, status = geocode(so_rua, country_codes=pais), "aproximado_rua"
+            loc, status = geocode(completo, country_codes=pais, **extra), "ok"
+            if loc is None:  # fallback: só a rua
+                loc, status = geocode(so_rua, country_codes=pais, **extra), "aproximado_rua"
             if loc is None:
                 cache[end] = {"lat": None, "lon": None, "status": "nao_encontrado"}
             else:
@@ -86,7 +132,7 @@ def geocodificar_df(
             if i % 25 == 0:
                 salvar()
     finally:
-        salvar() 
+        salvar()  # salva mesmo se der erro ou se você interromper (Stop)
 
     vazio = {"lat": None, "lon": None, "status": "pendente"}
     geo = pd.DataFrame([cache.get(e, vazio) for e in df[coluna]], index=df.index)
