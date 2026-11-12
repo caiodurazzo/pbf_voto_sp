@@ -1,5 +1,6 @@
 # proj specific
 *data/
+*cache_geocodificacao.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
