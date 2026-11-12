@@ -7,12 +7,11 @@ from geopy.extra.rate_limiter import RateLimiter
 from geopy.geocoders import Nominatim
 
 try:
-    from tqdm.auto import tqdm
-except ImportError:
-    def tqdm(x, **kwargs):
-        return x
+    from tqdm.auto import tqdm as _tqdm
+except ImportError:  
+    _tqdm = None
 
-BBOX_SP = (-24.01, -23.35, -46.83, -46.36)
+BBOX_SP = (-24.01, -23.35, -46.83, -46.36)  
 
 ABREVIACOES = {
     r"^AV\.?\s": "AVENIDA ",
@@ -26,7 +25,6 @@ ABREVIACOES = {
 }
 
 def limpar_endereco(endereco: str, cidade: str = "São Paulo, SP, Brasil") -> tuple[str, str]:
-    """Normaliza o endereço. Devolve (endereço completo, só a rua)."""
     e = " ".join(str(endereco).upper().split())
     for padrao, novo in ABREVIACOES.items():
         e = re.sub(padrao, novo, e)
@@ -54,7 +52,10 @@ def geocodificar_df(
     cache_path = Path(cache_path)
     cache = json.loads(cache_path.read_text(encoding="utf-8")) if cache_path.exists() else {}
 
-    geolocator = Nominatim(user_agent=f"geocod_utils ({email})", timeout=10)
+    geolocator = Nominatim(
+        user_agent=f"geocod_utils ({email})",
+        timeout=10,  # type: ignore[arg-type]
+    )
     geocode = RateLimiter(
         geolocator.geocode, min_delay_seconds=1.1,
         max_retries=3, error_wait_seconds=5, swallow_exceptions=True,
@@ -70,10 +71,11 @@ def geocodificar_df(
         cache_path.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
 
     try:
-        for i, end in enumerate(tqdm(pendentes), 1):
+        iterador = _tqdm(pendentes) if _tqdm else pendentes
+        for i, end in enumerate(iterador, 1):
             completo, so_rua = limpar_endereco(end, cidade)
             loc, status = geocode(completo, country_codes=pais), "ok"
-            if loc is None:  # fallback: só a rua
+            if loc is None: 
                 loc, status = geocode(so_rua, country_codes=pais), "aproximado_rua"
             if loc is None:
                 cache[end] = {"lat": None, "lon": None, "status": "nao_encontrado"}
@@ -84,7 +86,7 @@ def geocodificar_df(
             if i % 25 == 0:
                 salvar()
     finally:
-        salvar()
+        salvar() 
 
     vazio = {"lat": None, "lon": None, "status": "pendente"}
     geo = pd.DataFrame([cache.get(e, vazio) for e in df[coluna]], index=df.index)
