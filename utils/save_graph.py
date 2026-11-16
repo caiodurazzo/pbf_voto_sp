@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 from config import graphs_folder
 import os
 
