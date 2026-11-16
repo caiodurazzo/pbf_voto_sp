@@ -1,0 +1,38 @@
+﻿;Distrito;Cluster;Famílias no PBF por mil habitantes;Votos válidos em Lula (%);I local;p-valor
+0;Jardim Ângela;Alto PBF – vizinhança Alto Lula;226,08;67,964;1,343;0,002
+1;República;Alto PBF – vizinhança Alto Lula;205,772;64,762;0,844;0,002
+2;Parelheiros;Alto PBF – vizinhança Alto Lula;231,685;64,783;1,436;0,002
+3;Capão Redondo;Alto PBF – vizinhança Alto Lula;192,592;64,208;0,883;0,004
+4;José Bonifácio;Alto PBF – vizinhança Alto Lula;163,241;60,508;0,219;0,005
+5;Cidade Dutra;Alto PBF – vizinhança Alto Lula;193,622;58,919;0,571;0,005
+6;Guaianases;Alto PBF – vizinhança Alto Lula;217,611;62,463;1,202;0,009
+7;Grajaú;Alto PBF – vizinhança Alto Lula;229,169;67,152;1,282;0,013
+8;Cidade Tiradentes;Alto PBF – vizinhança Alto Lula;259,882;67,561;1,752;0,014
+9;Iguatemi;Alto PBF – vizinhança Alto Lula;212,047;63,244;0,702;0,03
+10;Lajeado;Alto PBF – vizinhança Alto Lula;257,978;60,4;0,972;0,044
+11;Campo Limpo;Alto PBF – vizinhança Alto Lula;169,627;60,651;0,25;0,047
+12;Belém;Alto PBF – vizinhança Baixo Lula;164,198;48,745;-0,278;0,001
+13;Vila Maria;Alto PBF – vizinhança Baixo Lula;197,722;47,113;-0,77;0,004
+14;Sapopemba;Alto PBF – vizinhança Baixo Lula;206,094;56,41;-0,747;0,028
+15;Vila Medeiros;Alto PBF – vizinhança Baixo Lula;185,977;48,118;-0,496;0,028
+16;Pari;Alto PBF – vizinhança Baixo Lula;263,957;52,492;-1,201;0,041
+17;Liberdade;Baixo PBF – vizinhança Alto Lula;81,782;57,724;-0,78;0,017
+18;Bela Vista;Baixo PBF – vizinhança Alto Lula;101,034;64,634;-0,443;0,025
+19;Consolação;Baixo PBF – vizinhança Alto Lula;29,961;62,143;-1,124;0,03
+20;Santa Cecília;Baixo PBF – vizinhança Alto Lula;124,835;62,524;-0,204;0,047
+21;Tatuapé;Baixo PBF – vizinhança Baixo Lula;108,216;41,778;0,634;0,0
+22;Água Rasa;Baixo PBF – vizinhança Baixo Lula;85,786;41,405;1,03;0,0
+23;Vila Formosa;Baixo PBF – vizinhança Baixo Lula;111,552;42,43;0,546;0,0
+24;Itaim Bibi;Baixo PBF – vizinhança Baixo Lula;19,879;42,161;1,619;0,004
+25;Carrão;Baixo PBF – vizinhança Baixo Lula;80,473;41,824;0,992;0,005
+26;Vila Prudente;Baixo PBF – vizinhança Baixo Lula;100,643;47,417;0,713;0,007
+27;Tucuruvi;Baixo PBF – vizinhança Baixo Lula;80,855;47,533;0,798;0,008
+28;Vila Matilde;Baixo PBF – vizinhança Baixo Lula;107,936;48,134;0,462;0,011
+29;Vila Guilherme;Baixo PBF – vizinhança Baixo Lula;106,2;44,034;0,474;0,011
+30;Moema;Baixo PBF – vizinhança Baixo Lula;13,072;38,813;1,609;0,015
+31;São Lucas;Baixo PBF – vizinhança Baixo Lula;118,914;48,235;0,382;0,016
+32;Mooca;Baixo PBF – vizinhança Baixo Lula;96,051;43,298;0,519;0,023
+33;Campo Belo;Baixo PBF – vizinhança Baixo Lula;54,255;42,774;0,909;0,027
+34;Saúde;Baixo PBF – vizinhança Baixo Lula;40,006;50,526;1,149;0,031
+35;Aricanduva;Baixo PBF – vizinhança Baixo Lula;138,683;46,417;0,074;0,033
+36;Penha;Baixo PBF – vizinhança Baixo Lula;121,603;49,004;0,231;0,04
